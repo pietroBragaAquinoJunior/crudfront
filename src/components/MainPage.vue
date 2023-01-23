@@ -1,99 +1,71 @@
 <template>
-  <n-data-table
-      :columns="columns"
-      :data="data.info"
-      :pagination="pagination"
-      :bordered="false"
-  />
+  <div class="centralizar">
+    <n-card class="card__transparente margin__bottom centralizar pequeno" >
+      <n-menu style="font-weight: bold; font-size: 15px" icon-size="30" v-model:value="activeKey" mode="horizontal" :options="menuOptions"/>
+    </n-card>
+    <Funcionario/>
+  </div>
 </template>
 
 <script setup lang="ts">
-import {h, onBeforeMount, reactive} from 'vue'
-import {NButton, useMessage, DataTableColumns} from 'naive-ui'
-import Usuario from '../types/Usuario'
-import DataService from "../service/DataService";
 
+// Imports
+import {h} from 'vue'
 
+import {NIcon} from 'naive-ui'
 
+import {ref, Component} from 'vue'
+import type {MenuOption} from 'naive-ui'
+import {PeopleCircleOutline, BarbellOutline, ClipboardOutline} from '@vicons/ionicons5'
+import Usuario from "./Usuario.vue";
+import Funcionario from "./Funcionario.vue";
 
-const createColumns = ({play}: {
-  play: (row: Usuario) => void
-}): DataTableColumns<Usuario> => {
-  return [
-    {
-      title: 'No',
-      key: 'id'
-    },
-    {
-      title: 'Title',
-      key: 'nome'
-    },
-    {
-      title: 'Length',
-      key: 'email'
-    },
-    {
-      title: 'Length',
-      key: 'telefone'
-    },
-    {
-      title: 'Action',
-      key: 'acao',
-      render(row) {
-        return h(
-            NButton,
-            {
-              strong: true,
-              tertiary: true,
-              size: 'small',
-              onClick: () => play(row)
-            },
-            {default: () => 'Play'}
-        )
-      }
-    }
-  ]
+// Script Menu
+function renderIcon(icon: Component) {
+  return () => h(NIcon, null, {default: () => h(icon)})
 }
 
-let data = reactive({info: []});
-
-const message = useMessage()
-
-const columns = createColumns({
-  play(row: Usuario) {
-
-    deletarUsuario(row.id);
-
+const menuOptions: MenuOption[] = [
+  {
+    label: 'Usuários',
+    key: 'usuarios',
+    icon: renderIcon(PeopleCircleOutline)
+  },
+  {
+    label: 'Funcionários',
+    key: 'funcionarios',
+    icon: renderIcon(ClipboardOutline),
+  },
+  {
+    label: 'Planos',
+    key: 'planos',
+    icon: renderIcon(BarbellOutline),
   }
-})
-const pagination = false as const
-
-const deletarUsuario = async (id: string) => {
-  await DataService.deletarUsuario(id).then((response: any) => {
-  }).catch((e: Error) => {
-    console.log("teste")
-  });
-  await atualizarTabela();
-}
-
-const atualizarTabela = async () => {
-  DataService.listarUsuario().then((response: any) => {
-    data.info = response.data
-    console.log(data.info)
-  }).catch((e: Error) => {
-    console.log("teste")
-  });
-}
-
-onBeforeMount(()=>{
-  atualizarTabela();
-})
-
-
-
+]
+const activeKey = ref<string | null>(null)
 
 </script>
 
 <style scoped>
+
+.margin__bottom{
+  margin-bottom: 200px;
+}
+
+.pequeno{
+  width: 35rem;
+}
+
+.centralizar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card__transparente{
+  background: rgba(255,255,255,0.8);
+  border-radius: 25px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
 
 </style>
